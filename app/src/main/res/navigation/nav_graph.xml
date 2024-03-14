@@ -7,5 +7,19 @@
     <fragment
         android:id="@+id/fragmentMain"
         android:name="com.example.androidcoursework.MainFragment"
-        android:label="MainFragment" />
+        android:label="MainFragment"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_fragmentMain_to_cardFragment"
+            app:destination="@id/cardFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cardFragment"
+        android:name="com.example.androidcoursework.CardFragment"
+        android:label="fragment_card"
+        tools:layout="@layout/fragment_card" >
+        <action
+            android:id="@+id/action_cardFragment_to_fragmentMain"
+            app:destination="@id/fragmentMain" />
+    </fragment>
 </navigation>

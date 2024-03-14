@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.androidcoursework.databinding.FragmentMainBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -28,9 +29,9 @@ class MainFragment : Fragment(), OnTimeListener {
     val PERMISSIONS_REQUEST_LOCATION = 123
     private val binding get() = _binding!!
     private var perm = arrayOf(android.Manifest.permission.RECORD_AUDIO)
-    private var permGrand = false
+    private var access = false
     private lateinit var recorder: MediaRecorder
-    private var dirPath = ""
+    private var path = ""
     private var filename = ""
     private var isRecording = false
     private var isPausing = false
@@ -49,10 +50,10 @@ class MainFragment : Fragment(), OnTimeListener {
         _binding = FragmentMainBinding.inflate(layoutInflater, container, false)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        permGrand = ActivityCompat.checkSelfPermission(
+        access = ActivityCompat.checkSelfPermission(
             requireContext(), perm[0]
         ) == PackageManager.PERMISSION_GRANTED
-        if (!permGrand) ActivityCompat.requestPermissions(
+        if (!access) ActivityCompat.requestPermissions(
             requireActivity(), perm, MICROPHONE_REQUEST_CODE
         )
 
@@ -78,10 +79,15 @@ class MainFragment : Fragment(), OnTimeListener {
             )
         }
 
+        binding.menu.setOnClickListener {
+            val action = MainFragmentDirections.actionFragmentMainToCardFragment()
+            findNavController().navigate(action)
+        }
+
         binding.donebut.setOnClickListener {
             stopRecording()
+            requestLocation()
             showSaveDialog()
-            Toast.makeText(requireContext(), "Запись сохранена", Toast.LENGTH_SHORT).show()
         }
 
         return binding.root
@@ -111,11 +117,11 @@ class MainFragment : Fragment(), OnTimeListener {
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == MICROPHONE_REQUEST_CODE) permGrand =
+        if (requestCode == MICROPHONE_REQUEST_CODE) access =
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         if (requestCode == PERMISSIONS_REQUEST_LOCATION) {
-            permGrand = grantResults[0] == PackageManager.PERMISSION_GRANTED
-            if (permGrand) {
+            access = grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (access) {
                 requestLocation()
             }
         }
@@ -136,12 +142,12 @@ class MainFragment : Fragment(), OnTimeListener {
     }
 
     private fun startRecording() {
-        if (!permGrand) {
+        if (!access) {
             ActivityCompat.requestPermissions(requireActivity(), perm, MICROPHONE_REQUEST_CODE)
             return
         }
         recorder = MediaRecorder()
-        dirPath = "${requireActivity().externalCacheDir?.absolutePath}/"
+        path = "${requireActivity().externalCacheDir?.absolutePath}/"
         val simpleDateFormat = SimpleDateFormat("yyyy.MM.DD_hh.mm.ss")
         val date: String = simpleDateFormat.format(Date())
         filename = "audio_record_$date"
@@ -149,7 +155,7 @@ class MainFragment : Fragment(), OnTimeListener {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile("$dirPath$filename.mp3")
+            setOutputFile("$path$filename.mp3")
             try {
                 prepare()
             } catch (_: IOException) {
@@ -195,12 +201,12 @@ class MainFragment : Fragment(), OnTimeListener {
         alertDialogBuilder.setPositiveButton("Сохранить") { _, _ ->
             val fileName = input.text.toString()
             if (fileName != filename) {
-                val newFile = File("$dirPath$fileName.mp3")
-                File("$dirPath$filename.mp3").renameTo(newFile)
+                val newFile = File("$path$fileName.mp3")
+                File("$path$filename.mp3").renameTo(newFile)
             }
             Toast.makeText(requireContext(), "Запись сохранена как $fileName", Toast.LENGTH_SHORT)
                 .show()
-            val filePath = "$dirPath$fileName.mp3"
+            val filePath = "$path$fileName.mp3"
             val timestamp = Date().time
             viewModel.insertRecord(
                 RecorderDataClass(
@@ -216,7 +222,7 @@ class MainFragment : Fragment(), OnTimeListener {
         }
 
         alertDialogBuilder.setNegativeButton("Удалить") { _, _ ->
-            File("$dirPath$filename.mp3").delete()
+            File("$path$filename.mp3").delete()
             Toast.makeText(requireContext(), "Запись удалена", Toast.LENGTH_SHORT).show()
         }
         alertDialogBuilder.show()

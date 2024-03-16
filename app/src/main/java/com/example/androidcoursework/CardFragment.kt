@@ -243,11 +243,11 @@ class CardFragment : Fragment() {
 
         override fun onItemClickListener(position: Int) {
             viewModel.records.observe(viewLifecycleOwner) { records ->
-                val audioRecord = records.getOrNull(position)
+                val mediaRecorder = records.getOrNull(position)
 
-                if (audioRecord != null) {
+                if (mediaRecorder != null) {
                     if (adapterAudioRecords.isEditMode()) {
-                        audioRecord.isChecked = !audioRecord.isChecked
+                        mediaRecorder.isChecked = !mediaRecorder.isChecked
                         adapterAudioRecords.notifyItemChanged(position)
 
                         when (records.count { it.isChecked }) {
@@ -267,6 +267,13 @@ class CardFragment : Fragment() {
                             }
                         }
                     } else {
+                        if (!isNavigationBlocked) {
+                            val action =
+                                CardFragmentDirections.actionCardFragmentToMediaPlayerFragment(
+                                    mediaRecorder.filename, mediaRecorder.filepath
+                                )
+                            findNavController().navigate(action)
+                        }
                     }
                 }
             }

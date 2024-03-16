@@ -59,7 +59,7 @@ class MainFragment : Fragment(), OnTimeListener {
 
         timer = Timer(this)
 
-        binding.record.setOnClickListener {
+        binding.recordButton.setOnClickListener {
             when {
                 isPausing -> resumeRecording()
                 isRecording -> pauseRecording()
@@ -84,7 +84,7 @@ class MainFragment : Fragment(), OnTimeListener {
             findNavController().navigate(action)
         }
 
-        binding.donebut.setOnClickListener {
+        binding.addButton.setOnClickListener {
             stopRecording()
             requestLocation()
             showSaveDialog()
@@ -130,14 +130,14 @@ class MainFragment : Fragment(), OnTimeListener {
     private fun pauseRecording() {
         recorder.pause()
         isPausing = true
-        binding.record.setImageResource(R.drawable.recordbutton)
+        binding.recordButton.setImageResource(R.drawable.recordbutton)
         timer.pause()
     }
 
     private fun resumeRecording() {
         recorder.resume()
         isPausing = false
-        binding.record.setImageResource(R.drawable.pause)
+        binding.recordButton.setImageResource(R.drawable.pause)
         timer.start()
     }
 
@@ -146,6 +146,8 @@ class MainFragment : Fragment(), OnTimeListener {
             ActivityCompat.requestPermissions(requireActivity(), perm, MICROPHONE_REQUEST_CODE)
             return
         }
+        binding.micImage.visibility = View.GONE
+        binding.timer.visibility = View.VISIBLE
         recorder = MediaRecorder()
         path = "${requireActivity().externalCacheDir?.absolutePath}/"
         val simpleDateFormat = SimpleDateFormat("yyyy.MM.DD_hh.mm.ss")
@@ -162,12 +164,12 @@ class MainFragment : Fragment(), OnTimeListener {
             }
             start()
         }
-        binding.record.setImageResource(R.drawable.pause)
+        binding.recordButton.setImageResource(R.drawable.pause)
         isRecording = true
         isPausing = false
         timer.start()
         binding.menu.visibility = View.GONE
-        binding.donebut.visibility = View.VISIBLE
+        binding.addButton.visibility = View.VISIBLE
     }
 
     private fun stopRecording() {
@@ -179,17 +181,19 @@ class MainFragment : Fragment(), OnTimeListener {
         isPausing = false
         isRecording = false
         binding.menu.visibility = View.VISIBLE
-        binding.donebut.visibility = View.GONE
-        binding.record.setImageResource(R.drawable.recordbutton)
-        binding.timerMain.text = "00:00:00"
+        binding.addButton.visibility = View.GONE
+        binding.recordButton.setImageResource(R.drawable.recordbutton)
+        binding.timer.text = "00:00:00"
     }
 
     override fun onTime(duration: String) {
-        binding.timerMain.text = duration
-        this.duration = duration.dropLast(3)
+        binding.timer.text = duration
+        this.duration = duration.dropLast(0)
     }
 
     private fun showSaveDialog() {
+        binding.timer.visibility = View.GONE
+        binding.micImage.visibility = View.VISIBLE
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
         alertDialogBuilder.setTitle("Сохранить запись?")
 

@@ -21,5 +21,23 @@
         <action
             android:id="@+id/action_cardFragment_to_fragmentMain"
             app:destination="@id/fragmentMain" />
+        <action
+            android:id="@+id/action_cardFragment_to_mediaPlayerFragment"
+            app:destination="@id/mediaPlayerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mediaPlayerFragment"
+        android:name="com.example.androidcoursework.MediaPlayerFragment"
+        android:label="fragment_media_player"
+        tools:layout="@layout/fragment_media_player" >
+        <action
+            android:id="@+id/action_mediaPlayerFragment_to_cardFragment"
+            app:destination="@id/cardFragment" />
+        <argument
+            android:name="filename"
+            app:argType="string" />
+        <argument
+            android:name="filepath"
+            app:argType="string" />
     </fragment>
 </navigation>

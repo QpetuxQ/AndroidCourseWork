@@ -35,9 +35,9 @@ class RecorderAdapter(private val listener: OnItemClickListener) :
         RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
         private val fileNameText: TextView = binding.filename
-        private val metaText: TextView = binding.meta
-        private val checkBoxText: CheckBox = binding.checkbox
-        private val shareButton: ImageView = binding.sharebut
+        private val metaText: TextView = binding.metaInf
+        private val checkBoxText: CheckBox = binding.checkBox
+        private val shareButton: ImageView = binding.shareButton
 
         init {
             itemView.setOnClickListener(this)
@@ -61,6 +61,7 @@ class RecorderAdapter(private val listener: OnItemClickListener) :
         }
 
         fun bind(record: RecorderDataClass) {
+            val record = recordsList[position]
             val dateFormat = SimpleDateFormat("dd/MM/yyyy")
             val date = Date(record.timestamp)
             val strDate = dateFormat.format(date)
